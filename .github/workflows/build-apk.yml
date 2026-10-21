@@ -42,7 +42,16 @@ jobs:
           cp /tmp/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
           cp /tmp/main.dart lib/main.dart
 
-      - name: Point the app at the Render server by default
+            - name: Raise Android compileSdk for newer plugins
+        working-directory: ${{ steps.find.outputs.dir }}
+        run: |
+          for f in android/app/build.gradle.kts android/app/build.gradle; do
+            if [ -f "$f" ]; then
+              sed -i -E 's/^([[:space:]]*)compileSdk(Version)?[[:space:]]*=?[[:space:]]*[^[:space:]].*$/\1compileSdk = 36/' "$f"
+              grep -n "compileSdk" "$f"
+            fi
+          done
+          - name: Point the app at the Render server by default
         working-directory: ${{ steps.find.outputs.dir }}
         run: |
           sed -i "s#ws://192.168.1.25:8787#wss://rahul-sync-beats.onrender.com#g" lib/main.dart
